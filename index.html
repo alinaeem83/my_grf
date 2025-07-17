@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRF REPORT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: skyblue;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: blue;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            text-decoration: underline;
+            color: blue;
+            margin-top: 30px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 15px 0 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .situational-awareness {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            color: blue;
+            margin: 20px 0;
+        }
+        .grf-code {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .submit-btn {
+            background-color: blue;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: darkblue;
+        }
+    </style>
+    <script>
+        // Get current UTC time
+        function getCurrentUTC() {
+            const now = new Date();
+            const hours = now.getUTCHours().toString().padStart(2, '0');
+            const minutes = now.getUTCMinutes().toString().padStart(2, '0');
+            return `${hours}${minutes}`;
+        }
+
+        // Get current UTC date in MMDD
+        function getCurrentUTCDateMMDD() {
+            const now = new Date();
+            const mm = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+            const dd = now.getUTCDate().toString().padStart(2, '0');
+            return `${mm}${dd}`;
+        }
+
+        // Update GRF Code dynamically
+        function updateGRFCode() {
+            const aerodrome = document.getElementById("aerodromeName").value;
+            const date = document.getElementById("date").value;
+            const time = document.getElementById("time").value;
+            const lrd = document.getElementById("lowerRunway").value;
+
+            const code1 = document.getElementById("rwyCode1").value;
+            const code2 = document.getElementById("rwyCode2").value;
+            const code3 = document.getElementById("rwyCode3").value;
+
+            const coverage1 = document.getElementById("coverage1").value;
+            const coverage2 = document.getElementById("coverage2").value;
+            const coverage3 = document.getElementById("coverage3").value;
+
+            const depth1 = document.getElementById("depth1").value;
+            const depth2 = document.getElementById("depth2").value;
+            const depth3 = document.getElementById("depth3").value;
+
+            const descriptor1 = document.getElementById("descriptor1").value;
+            const descriptor2 = document.getElementById("descriptor2").value;
+            const descriptor3 = document.getElementById("descriptor3").value;
+
+            const grfCode = `${aerodrome} ${date} ${time} ${lrd} ${code1}/${code2}/${code3} ${coverage1}/${coverage2}/${coverage3} ${depth1}/${depth2}/${depth3} ${descriptor1}/${descriptor2}/${descriptor3}`;
+            document.getElementById("grfCode").innerText = grfCode;
+        }
+
+        // Populate date and time
+        function populateDateTime() {
+            document.getElementById("date").value = getCurrentUTCDateMMDD();
+            document.getElementById("time").value = getCurrentUTC();
+        }
+
+        // Validate form & generate PDF
+        async function validateAndSubmit(event) {
+            event.preventDefault();
+            const inputs = document.querySelectorAll("input[required], select[required]");
+            for (const input of inputs) {
+                if (!input.value) {
+                    alert("Please fill out all required fields.");
+                    input.focus();
+                    return;
+                }
+            }
+
+            const report = `
+GRF REPORT
+
+Reporter: ${document.getElementById("reporter").value}
+Aerodrome Name: ${document.getElementById("aerodromeName").value}
+Date: ${document.getElementById("date").value}
+Time: ${document.getElementById("time").value}
+Lower Runway Designator: ${document.getElementById("lowerRunway").value}
+
+Runway Condition Details:
+1st Third - Code: ${document.getElementById("rwyCode1").value}, Coverage: ${document.getElementById("coverage1").value}, Depth: ${document.getElementById("depth1").value}, Descriptor: ${document.getElementById("descriptor1").value}
+2nd Third - Code: ${document.getElementById("rwyCode2").value}, Coverage: ${document.getElementById("coverage2").value}, Depth: ${document.getElementById("depth2").value}, Descriptor: ${document.getElementById("descriptor2").value}
+3rd Third - Code: ${document.getElementById("rwyCode3").value}, Coverage: ${document.getElementById("coverage3").value}, Depth: ${document.getElementById("depth3").value}, Descriptor: ${document.getElementById("descriptor3").value}
+
+Situational Awareness:
+Taxiway: ${document.getElementById("taxiway").value}
+Apron: ${document.getElementById("apron").value}
+Turnpad 10: ${document.getElementById("turnpad10").value}
+Turnpad 28: ${document.getElementById("turnpad28").value}
+Others: ${document.getElementById("others").value}
+
+GRF Code:
+${document.getElementById("grfCode").innerText}
+`;
+
+            // Generate PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(12);
+            const lines = doc.splitTextToSize(report.trim(), 180);
+            doc.text(lines, 15, 20);
+            const filename = `GRF_${document.getElementById("aerodromeName").value}_${document.getElementById("date").value}_${document.getElementById("time").value}.pdf`;
+            doc.save(filename);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            populateDateTime();
+            const elements = document.querySelectorAll("select, input");
+            elements.forEach(el => el.addEventListener("change", updateGRFCode));
+            updateGRFCode();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>GRF REPORT</h1>
+        <form onsubmit="validateAndSubmit(event)">
+            <label>Reporter: <span style="color:red;">*</span></label>
+            <input type="text" id="reporter" placeholder="Enter Reporter Name" required>
+
+            <label>Aerodrome Name:</label>
+            <input type="text" id="aerodromeName" value="VRMG" readonly>
+
+            <label>Date (MMDD):</label>
+            <input type="text" id="date" readonly>
+
+            <label>Time (UTC):</label>
+            <input type="text" id="time" readonly>
+
+            <label>Lower Runway Designator (LRD):</label>
+            <input type="text" id="lowerRunway" value="10" readonly>
+
+            <h2>Runway Condition Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>1st Third</th>
+                        <th>2nd Third</th>
+                        <th>3rd Third</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Runway Condition Code</td>
+                        <td><select id="rwyCode1" required><option>5</option><option>2</option><option>3</option><option>4</option><option>6</option></select></td>
+                        <td><select id="rwyCode2" required><option>5</option><option>2</option><option>3</option><option>4</option><option>6</option></select></td>
+                        <td><select id="rwyCode3" required><option>5</option><option>2</option><option>3</option><option>4</option><option>6</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>% Coverage</td>
+                        <td><select id="coverage1" required><option>100</option><option>75</option><option>50</option><option>25</option><option>NR</option></select></td>
+                        <td><select id="coverage2" required><option>100</option><option>75</option><option>50</option><option>25</option><option>NR</option></select></td>
+                        <td><select id="coverage3" required><option>100</option><option>75</option><option>50</option><option>25</option><option>NR</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Depth</td>
+                        <td><select id="depth1" required><option>NR</option><option>3mm</option><option>4mm</option></select></td>
+                        <td><select id="depth2" required><option>NR</option><option>3mm</option><option>4mm</option></select></td>
+                        <td><select id="depth3" required><option>NR</option><option>3mm</option><option>4mm</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Runway Condition Descriptor</td>
+                        <td><select id="descriptor1" required><option>WET</option><option>Dry</option><option>Slippery Wet</option><option>Standing Water</option></select></td>
+                        <td><select id="descriptor2" required><option>WET</option><option>Dry</option><option>Slippery Wet</option><option>Standing Water</option></select></td>
+                        <td><select id="descriptor3" required><option>WET</option><option>Dry</option><option>Slippery Wet</option><option>Standing Water</option></select></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="situational-awareness">Situational Awareness</div>
+            <label>Taxiway:</label>
+            <input type="text" id="taxiway" value="GOOD" required>
+            <label>Apron:</label>
+            <input type="text" id="apron" value="GOOD" required>
+            <label>Turnpad 10:</label>
+            <input type="text" id="turnpad10" value="GOOD" required>
+            <label>Turnpad 28:</label>
+            <input type="text" id="turnpad28" value="GOOD" required>
+            <label>Others:</label>
+            <input type="text" id="others" value="GOOD" required>
+
+            <div class="grf-code" id="grfCode">GRF Code will appear here...</div>
+
+            <button type="submit" class="submit-btn">Submit & Download PDF</button>
+        </form>
+    </div>
+</body>
+</html>
