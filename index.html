@@ -41,7 +41,7 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <img id="loginLogo" class="login-logo" alt="AddU International Airport logo">
-    <h2>ADD U INTERNATIONAL AIRPORT</h2>
+    <h2>ADDU INTERNATIONAL AIRPORT</h2>
     <h3>VRMG GRF REPORTING SYSTEM</h3>
     <p>Authorised Access Only</p>
     <div class="login-form">
@@ -116,7 +116,7 @@ const AIRPORT_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAP0AAAF0CAIA
 // BASIC CLIENT-SIDE PASSWORD: change this value before publishing.
 // This is only a casual-access deterrent; the password is visible in page source.
 const GRF_PASSWORDS = [
-    "grf1@ganairport",
+    "gan1",
     "CHANGE-ME-123"
 ];
 
@@ -303,7 +303,7 @@ async function validateAndSubmit(event) {
     doc.setFont("helvetica","normal");
     doc.setFontSize(9.5);
     doc.setTextColor(90,100,110);
-    doc.text("ADD U INTERNATIONAL AIRPORT",43,33);
+    doc.text("ADDU INTERNATIONAL AIRPORT",43,33);
     doc.text("AERODROME: VRMG",43,39);
     doc.setDrawColor(20,115,175);
     doc.setLineWidth(.8);
@@ -381,7 +381,7 @@ async function validateAndSubmit(event) {
     doc.setFont("helvetica","normal");
     doc.setFontSize(7);
     doc.setTextColor(110,120,130);
-    doc.text("ADD U INTERNATIONAL AIRPORT | VRMG",13,294);
+    doc.text("ADDU INTERNATIONAL AIRPORT | VRMG",13,294);
     doc.text("RUNWAY CONDITION REPORT",197,294,{align:"right"});
 
     const filename=`GRF_${aerodrome}_${date}_${time}.pdf`;
